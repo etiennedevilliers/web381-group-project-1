@@ -4,8 +4,6 @@ const fs = require('fs');
 const { Console } = require('console');
 const { resolve } = require('path');
 
-let tempDir = 'temp';
-
 function getDepthTab(depth) {
     let depthString = '';
     for (let i = 0; i < depth; i++) depthString += '    ';
@@ -13,11 +11,7 @@ function getDepthTab(depth) {
 }
 
 // Recursive directory compress function
-function compressDir (directoryPath, tempPath, name, depth) {
-    if (!fs.existsSync(tempPath)){
-        fs.mkdirSync(tempPath);
-    }
-
+function compressDir (directoryPath, name, depth) {
     return new Promise((resolve) => {fs.readdir(directoryPath, (err, files) => {
         if (err) {
             console.log('Unable to scan directory: ' + err);
@@ -29,22 +23,20 @@ function compressDir (directoryPath, tempPath, name, depth) {
 
         console.log(getDepthTab(depth) + name);
         
-        
         // iterate through items in directory. Compress sub folders and Copy files
         files.forEach(function (file) { 
             var stats = fs.statSync(path.join(directoryPath, file));
             
             if (stats.isDirectory()) {
                 awaits.push(compressDir(
-                    path.join(directoryPath, file), 
-                    path.join(tempPath, file), 
+                    path.join(directoryPath, file),
                     file, 
                     depth + 1
                 ));
             
             } else {
                 awaits.push(new Promise((resolve) => {
-                    fs.copyFile(path.join(directoryPath, file), path.join(tempPath, file), (err) => {
+                    fs.copyFile(path.join(directoryPath, file), path.join(directoryPath, file), (err) => {
                         if (err) throw err;
                         console.log(getDepthTab(depth + 1) + file + ' copied');
                         resolve();
@@ -55,12 +47,12 @@ function compressDir (directoryPath, tempPath, name, depth) {
 
         // Wait for all files to copy and sub folders to compress. Procede to compress directory and then delete completed directory 
         Promise.all(awaits).then(() => {return new Promise((resolve) => { 
-            const myStream = Seven.add(tempPath + '.zip', tempPath, {
+            const myStream = Seven.add(directoryPath + '.zip', directoryPath, {
                     recursive: true
             })
     
             myStream.on('end', function () {
-                fs.rmdir(tempPath, {
+                fs.rm(directoryPath, {
                     recursive: true,
                   }, (err) => {
                     if (err != null) 
@@ -73,27 +65,19 @@ function compressDir (directoryPath, tempPath, name, depth) {
     })});
 }
 
-
-
-
 // Compress all folders in a direcoty
-function Compress(demoDir, outputDir) {
+function Compress(outputDir) {
     return new Promise((resolve) => {
-        fs.readdir(path.join(__dirname, demoDir), (err, files) => {
-            if (!fs.existsSync(path.join(__dirname, tempDir))){
-                fs.mkdirSync(path.join(__dirname, tempDir));
-            }
-        
+        fs.readdir(path.join(__dirname, outputDir), (err, files) => {        
             let compressing = []
         
             // Find only folders in demoDir
             files.forEach(function (file) {
-                var stats = fs.statSync(path.join(path.join(__dirname, demoDir), file));
+                var stats = fs.statSync(path.join(path.join(__dirname, outputDir), file));
                     
                 if (stats.isDirectory()) {
                     compressing.push(compressDir(
-                        path.join(path.join(__dirname, demoDir), file),
-                        path.join(path.join(__dirname, tempDir), file),
+                        path.join(path.join(__dirname, outputDir), file),
                         file
                     ));
                     
@@ -101,11 +85,7 @@ function Compress(demoDir, outputDir) {
             });
         
             Promise.all(compressing).then(() => {
-                return new Promise((resolve) => {
-                    fs.rename(path.join(__dirname, tempDir), path.join(__dirname, outputDir), (err) => {
-                        resolve();
-                    });
-                })
+                return resolve();
             }).then(resolve);
         });        
     });

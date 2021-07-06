@@ -1,6 +1,7 @@
+//Paste folders to be compressed into /Output from Input/ToCompress
+
 const Compressor = require('./compressor');
 
-let demoDir = '_compress-demo_';
-let outputDir = 'output';
+let outputDir = 'Output';
 
-Compressor(demoDir, outputDir);
+Compressor(outputDir);
