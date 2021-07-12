@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon cli.js",
+    "dev": "node cli.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,10 @@
   "homepage": "https://github.com/etiennedevilliers/web381-group-project-1#readme",
   "dependencies": {
     "decompress": "^4.2.1",
-    "node-7z": "^2.1.2"
+    "node-7z": "^2.1.2",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
   }
 }
