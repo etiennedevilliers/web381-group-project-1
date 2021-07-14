@@ -2,15 +2,20 @@ const Seven = require('node-7z');
 const path = require('path');
 const fs = require('fs');
 
+const supportedTypes = ['zip', '7z', 'rar', 'tar'];
+
 function decompressDir (directoryPath, name) {
     directoryPath = path.join(directoryPath, name.substring(0, name.lastIndexOf(".")));
-    let myStream = Seven.extract(directoryPath + ".zip", directoryPath, {
+
+    console.log(`Decompressing ${directoryPath}`);
+    let myStream = Seven.extract(directoryPath + '.' + name.split('.').splice(-1)[0], directoryPath, {
         recursive: true,
         $cherryPick: '*.*'
       });
     
     myStream.on('end', function () {
-        fs.rm(directoryPath + ".zip", {
+
+        fs.rm(directoryPath + '.' + name.split('.').splice(-1)[0], {
             recursive: true,
           }, (err) => {
             if (err != null) 
@@ -32,7 +37,7 @@ function decompressDir (directoryPath, name) {
                 var stats = fs.statSync(path.join(directoryPath, file));
 
                 if (stats.isFile()) {
-                    if(file.endsWith(".zip")){
+                    if (supportedTypes.includes(file.split('.').splice(-1)[0])) {
                         awaits.push(decompressDir(
                             directoryPath,
                             file
@@ -65,7 +70,9 @@ function Decompress(outputDir) {
                 var stats = fs.statSync(path.join(path.join(__dirname, outputDir), file));
                     
                 if (stats.isFile()) {
-                    if(file.endsWith(".zip")){
+                    console.log(supportedTypes.includes(file.split('.').splice(-1)[0]));
+                    if (supportedTypes.includes(file.split('.').splice(-1)[0])) {
+
                         awaits.push(decompressDir(
                             path.join(__dirname, outputDir),
                             file

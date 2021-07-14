@@ -11,7 +11,8 @@ function getDepthTab(depth) {
 }
 
 // Recursive directory compress function
-function compressDir (directoryPath, name, depth) {
+function compressDir (directoryPath, type) {
+    console.log(`type:${type} dir:${directoryPath}`);
     return new Promise((resolve) => {fs.readdir(directoryPath, (err, files) => {
         if (err) {
             console.log('Unable to scan directory: ' + err);
@@ -21,7 +22,6 @@ function compressDir (directoryPath, name, depth) {
 
         let awaits = [];
 
-        console.log(getDepthTab(depth) + name);
         
         // iterate through items in directory. Compress sub folders and Copy files
         files.forEach(function (file) { 
@@ -30,15 +30,13 @@ function compressDir (directoryPath, name, depth) {
             if (stats.isDirectory()) {
                 awaits.push(compressDir(
                     path.join(directoryPath, file),
-                    file, 
-                    depth + 1
+                    type
                 ));
             
             } else {
                 awaits.push(new Promise((resolve) => {
                     fs.copyFile(path.join(directoryPath, file), path.join(directoryPath, file), (err) => {
                         if (err) throw err;
-                        console.log(getDepthTab(depth + 1) + file + ' copied');
                         resolve();
                     })
                 }));
@@ -47,7 +45,7 @@ function compressDir (directoryPath, name, depth) {
 
         // Wait for all files to copy and sub folders to compress. Procede to compress directory and then delete completed directory 
         Promise.all(awaits).then(() => {return new Promise((resolve) => { 
-            const myStream = Seven.add(directoryPath + '.zip', directoryPath, {
+            const myStream = Seven.add(directoryPath + type, directoryPath, {
                     recursive: true
             })
     
@@ -66,7 +64,9 @@ function compressDir (directoryPath, name, depth) {
 }
 
 // Compress all folders in a direcoty
-function Compress(outputDir) {
+function Compress(outputDir, type='.zip') {
+    
+
     return new Promise((resolve) => {
         fs.readdir(path.join(__dirname, outputDir), (err, files) => {        
             let compressing = []
@@ -74,11 +74,12 @@ function Compress(outputDir) {
             // Find only folders in demoDir
             files.forEach(function (file) {
                 var stats = fs.statSync(path.join(path.join(__dirname, outputDir), file));
-                    
+                console.log(`Compressing folder: ${file}`);
                 if (stats.isDirectory()) {
+                    console
                     compressing.push(compressDir(
                         path.join(path.join(__dirname, outputDir), file),
-                        file
+                        type
                     ));
                     
                 } 

@@ -10,10 +10,16 @@ const rl = readline.createInterface({
   });
 
 rl.question("Compress or Decompress?\n1. Compress\n2. Decompress\n", (answer) => {
+    rl.pause();
+
+
     switch (answer) {
         case "1":
+            rl.question("Compression type: ", (compressionType) => {
+                rl.pause();
+                Compressor(outputDir, compressionType);
+            });
             //Compress - Paste folders to be compressed into /Output from Input/ToCompress
-            Compressor(outputDir);
             break;
 
         case "2":
@@ -23,7 +29,5 @@ rl.question("Compress or Decompress?\n1. Compress\n2. Decompress\n", (answer) =>
     
         default:
             break;
-    }
-
-    rl.pause();
+    }   
 });
