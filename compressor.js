@@ -1,4 +1,5 @@
 const Seven = require('node-7z');
+const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const { Console } = require('console');
@@ -45,20 +46,48 @@ function compressDir (directoryPath, type) {
 
         // Wait for all files to copy and sub folders to compress. Procede to compress directory and then delete completed directory 
         Promise.all(awaits).then(() => {return new Promise((resolve) => { 
-            const myStream = Seven.add(directoryPath + type, directoryPath, {
-                    recursive: true
-            })
-    
-            myStream.on('end', function () {
-                fs.rm(directoryPath, {
-                    recursive: true,
-                  }, (err) => {
-                    if (err != null) 
-                        console.log(err);
-                    resolve();
-                })
+            
+
+            if (type === '.rar') {
+                // GOGLE HOW TO RUN COMMAND LINE THING
+
+                const command = `rar a -r -ep1 ${directoryPath + type} ${directoryPath}\\*`;
+
+                console.log(command);
                 
-            })
+                exec(command, (err, stdout, stderr) => {
+                    if (err) {
+                      // node couldn't execute the command
+                      return;
+                    }
+
+                    fs.rm(directoryPath, {
+                        recursive: true,
+                      }, (err) => {
+                        if (err != null) 
+                            console.log(err);
+                        resolve();
+                    });
+                  });
+
+
+            } else {
+                const myStream = Seven.add(directoryPath + type, directoryPath, {
+                    recursive: true
+                })
+                myStream.on('end', function () {
+                    fs.rm(directoryPath, {
+                        recursive: true,
+                      }, (err) => {
+                        if (err != null) 
+                            console.log(err);
+                        resolve();
+                    })
+                    
+                })
+            }
+    
+            
         })}).then(resolve);
     })});
 }
