@@ -4,10 +4,10 @@ const fs = require('fs');
 
 const supportedTypes = ['zip', '7z', 'rar', 'tar'];
 
-function decompressDir (directoryPath, name) {
+function extractDir (directoryPath, name) {
     directoryPath = path.join(directoryPath, name.substring(0, name.lastIndexOf(".")));
 
-    console.log(`Decompressing ${directoryPath}`);
+    console.log(`Extracting ${directoryPath}`);
     let myStream = Seven.extract(directoryPath + '.' + name.split('.').splice(-1)[0], directoryPath, {
         recursive: true,
         $cherryPick: '*.*'
@@ -34,11 +34,11 @@ function decompressDir (directoryPath, name) {
             let awaits = []
             
             files.forEach(function (file) {
-                var stats = fs.statSync(path.join(directoryPath, file));
+                const stats = fs.statSync(path.join(directoryPath, file));
 
                 if (stats.isFile()) {
                     if (supportedTypes.includes(file.split('.').splice(-1)[0])) {
-                        awaits.push(decompressDir(
+                        awaits.push(extractDir(
                             directoryPath,
                             file
                         ));
@@ -60,21 +60,21 @@ function decompressDir (directoryPath, name) {
     });
 }
 
-function Decompress(outputDir) {
+function Extract(outputDir) {
     return new Promise((resolve) => {
-        fs.readdir(path.join(__dirname, outputDir), (err, files) => {        
+        fs.readdir(outputDir, (err, files) => {        
             let awaits = []
-        
+            
             // Find only folders in outputDir
             files.forEach(function (file) {
-                var stats = fs.statSync(path.join(path.join(__dirname, outputDir), file));
+                const stats = fs.statSync(path.join(outputDir, file));
                     
                 if (stats.isFile()) {
                     console.log(supportedTypes.includes(file.split('.').splice(-1)[0]));
                     if (supportedTypes.includes(file.split('.').splice(-1)[0])) {
 
-                        awaits.push(decompressDir(
-                            path.join(__dirname, outputDir),
+                        awaits.push(extractDir(
+                            outputDir,
                             file
                         ));
                     }
@@ -88,4 +88,4 @@ function Decompress(outputDir) {
     });
 }
 
-module.exports = Decompress;
+module.exports = Extract;

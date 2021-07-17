@@ -45,9 +45,7 @@ function compressDir (directoryPath, type) {
         });
 
         // Wait for all files to copy and sub folders to compress. Procede to compress directory and then delete completed directory 
-        Promise.all(awaits).then(() => {return new Promise((resolve) => { 
-            
-
+        Promise.all(awaits).then(() => {return new Promise((resolve) => {
             if (type === '.rar') {
                 // GOGLE HOW TO RUN COMMAND LINE THING
 
@@ -94,20 +92,18 @@ function compressDir (directoryPath, type) {
 
 // Compress all folders in a direcoty
 function Compress(outputDir, type='.zip') {
-    
-
     return new Promise((resolve) => {
-        fs.readdir(path.join(__dirname, outputDir), (err, files) => {        
+        fs.readdir(outputDir, (err, files) => {        
             let compressing = []
         
-            // Find only folders in demoDir
+            // Find only folders in outputDir
             files.forEach(function (file) {
-                var stats = fs.statSync(path.join(path.join(__dirname, outputDir), file));
+                var stats = fs.statSync(outputDir, file);
                 console.log(`Compressing folder: ${file}`);
                 if (stats.isDirectory()) {
                     console
                     compressing.push(compressDir(
-                        path.join(path.join(__dirname, outputDir), file),
+                        path.join(outputDir, file),
                         type
                     ));
                     

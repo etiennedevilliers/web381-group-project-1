@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/etiennedevilliers/web381-group-project-1#readme",
   "dependencies": {
+    "figlet": "^1.5.0",
     "node-7z": "^2.1.2"
   }
 }
