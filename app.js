@@ -4,6 +4,15 @@ const readline = require('readline');
 const Compressor = require('./compressor');
 const Extractor = require('./extractor');
 const Navigator = require('./navigator');
+const fs = require('fs');
+
+fs.stat(path.join(__dirname, 'Default'), (err, stats) => {
+    if (err) {
+        fs.mkdir(path.join(__dirname, 'Default'), (err) => {
+
+        });
+    }
+});
 
 let dir = path.join(__dirname, 'Default');
 
